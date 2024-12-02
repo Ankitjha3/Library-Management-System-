@@ -1,32 +1,181 @@
-# Prerequisites
-*.d
+#include <iostream>
+#include <cstring>
+using namespace std;
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+#define MAX_BOOKS 100 // Maximum number of books
 
-# Precompiled Headers
-*.gch
-*.pch
+// Book Class
+class Book {
+private:
+    int id;
+    char title[50];
+    char author[50];
+    bool isIssued;
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+public:
+    // Constructor
+    Book(int bookId, const char bookTitle[], const char bookAuthor[]) {
+        id = bookId;
+        strcpy(title, bookTitle);
+        strcpy(author, bookAuthor);
+        isIssued = false;
+        cout << "Book \"" << title << "\" added to the library.\n";
+    }
 
-# Fortran module files
-*.mod
-*.smod
+    // Default Constructor
+    Book() : id(0), isIssued(false) {
+        strcpy(title, "N/A");
+        strcpy(author, "N/A");
+    }
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+    // Member Functions
+    void displayDetails() {
+        cout << "ID: " << id
+             << "\nTitle: " << title
+             << "\nAuthor: " << author
+             << "\nStatus: " << (isIssued ? "Issued" : "Available") << "\n\n";
+    }
 
-# Executables
-*.exe
-*.out
-*.app
+    int getId() {
+        return id;
+    }
+
+    void issueBook() {
+        if (!isIssued) {
+            isIssued = true;
+            cout << "Book \"" << title << "\" has been issued.\n";
+        } else {
+            cout << "Book \"" << title << "\" is already issued.\n";
+        }
+    }
+
+    void returnBook() {
+        if (isIssued) {
+            isIssued = false;
+            cout << "Book \"" << title << "\" has been returned.\n";
+        } else {
+            cout << "Book \"" << title << "\" was not issued.\n";
+        }
+    }
+
+    void reset() {
+        id = 0;
+        strcpy(title, "N/A");
+        strcpy(author, "N/A");
+        isIssued = false;
+    }
+
+    bool isEmpty() {
+        return id == 0;
+    }
+};
+
+// Library Management System Class
+class LibraryManagementSystem {
+private:
+    Book books[MAX_BOOKS];
+    int bookCount;
+
+public:
+    // Constructor
+    LibraryManagementSystem() : bookCount(0) {}
+
+    // Add a new book
+    void addBook(int id, const char title[], const char author[]) {
+        if (bookCount < MAX_BOOKS) {
+            books[bookCount] = Book(id, title, author);
+            bookCount++;
+        } else {
+            cout << "Error: Maximum book limit reached.\n";
+        }
+    }
+
+    // Display all books
+    void displayAllBooks() {
+        cout << "Book List:\n";
+        for (int i = 0; i < bookCount; i++) {
+            if (!books[i].isEmpty()) {
+                books[i].displayDetails();
+            }
+        }
+    }
+
+    // Issue a book by ID
+    void issueBook(int id) {
+        for (int i = 0; i < bookCount; i++) {
+            if (books[i].getId() == id) {
+                books[i].issueBook();
+                return;
+            }
+        }
+        cout << "Error: Book with ID " << id << " not found.\n";
+    }
+
+    // Return a book by ID
+    void returnBook(int id) {
+        for (int i = 0; i < bookCount; i++) {
+            if (books[i].getId() == id) {
+                books[i].returnBook();
+                return;
+            }
+        }
+        cout << "Error: Book with ID " << id << " not found.\n";
+    }
+};
+
+// Main Function
+int main() {
+    LibraryManagementSystem library;
+
+    int choice;
+    do {
+        cout << "\nLibrary Management System Menu:\n";
+        cout << "1. Add Book\n";
+        cout << "2. Display All Books\n";
+        cout << "3. Issue Book\n";
+        cout << "4. Return Book\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                int id;
+                char title[50], author[50];
+                cout << "Enter Book ID: ";
+                cin >> id;
+                cin.ignore();
+                cout << "Enter Book Title: ";
+                cin.getline(title, 50);
+                cout << "Enter Book Author: ";
+                cin.getline(author, 50);
+                library.addBook(id, title, author);
+                break;
+            }
+            case 2:
+                library.displayAllBooks();
+                break;
+            case 3: {
+                int id;
+                cout << "Enter Book ID to issue: ";
+                cin >> id;
+                library.issueBook(id);
+                break;
+            }
+            case 4: {
+                int id;
+                cout << "Enter Book ID to return: ";
+                cin >> id;
+                library.returnBook(id);
+                break;
+            }
+            case 5:
+                cout << "Exiting the system.\n";
+                break;
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}
